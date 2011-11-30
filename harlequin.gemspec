@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Brian Stanwyck"]
   s.email       = ["brian@highgroove.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Wrapper for discriminant analysis methods in R}
+  s.description = %q{harlequin is a Ruby wrapper for linear and quadratic discriminant analysis in R for statistical classification. Also allows means testing to determine significance of discriminant variables.}
 
   s.rubyforge_project = "harlequin"
 
