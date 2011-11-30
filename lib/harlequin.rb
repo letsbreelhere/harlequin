@@ -4,23 +4,16 @@ module Harlequin
   R.echo false
   R.eval "library(MASS)"
   R.eval "library(alr3)"
-  
-  class BadClassificationVariableException < Exception
-  end
 
   class DiscriminantAnalysis
     attr_reader :training_data, :variables, :classification_variable, :accuracy, :class_hash
 
     def initialize(variables, classification_variable)
       @accuracy                = nil
-      @variables               = variables
+      @variables               = variables << classification_variable
       @classification_variable = classification_variable
       @training_data           = []
       @class_hash              = {}
-    
-      unless variables.include? classification_variable
-        raise BadClassificationVariableException, "classification variable \"#{classification_variable.to_s}\" is not in variable list"
-      end
     end
   
     def clear_training_data
