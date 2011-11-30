@@ -1,7 +1,7 @@
 require 'spec_helper'
 describe Harlequin::DiscriminantAnalysis do
   before do
-    @discriminant_analysis = Harlequin::DiscriminantAnalysis.new([:weight, :height, :gender], :gender)
+    @discriminant_analysis = DiscriminantAnalysis.new([:weight, :height, :gender], :gender)
 
     csv_data = CSV.read("spec/lda_sample.csv")
     csv_data.shift

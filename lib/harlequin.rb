@@ -67,22 +67,6 @@ module Harlequin
       predictions.count == 1 ? predictions.first : predictions
     end
   
-    def compute_accuracy
-      R.eval "ct <- table(predict(fit)$class, analysis_data$#{classification_variable.to_s})"
-      percent_correct = R.pull "sum(diag(prop.table(ct)))"
-      percent_false_positives = (R.pull "prop.table(ct)[1,2]") / (R.pull "prop.table(ct)[1,1] + prop.table(ct)[1,2]")
-      percent_false_negatives = (R.pull "prop.table(ct)[2,1]") / (R.pull "prop.table(ct)[2,1] + prop.table(ct)[2,2]")
-    
-      correlation_coefficient = R.pull "sqrt(chisq.test(ct)$statistic/sum(ct))"
-    
-      @accuracy = {
-        :percent_correct         => percent_correct,
-        :percent_false_negatives => percent_false_negatives,
-        :percent_false_positives => percent_false_positives,
-        :correlation_coefficient => correlation_coefficient
-      }
-    end
-  
     # Performs a test of difference of means between classes
     # Since the t-test is two-sample, classification_variable must only have two states
     def t_test(variable)
@@ -150,5 +134,23 @@ module Harlequin
       @var_declarations = variables.map(&:to_s).join(',')
       @non_class_variables = (variables - [classification_variable]).map { |variable| variable.to_s }.join('+')
     end
+    
+    def compute_accuracy
+      R.eval "ct <- table(predict(fit)$class, analysis_data$#{classification_variable.to_s})"
+      percent_correct = R.pull "sum(diag(prop.table(ct)))"
+      percent_false_positives = (R.pull "prop.table(ct)[1,2]") / (R.pull "prop.table(ct)[1,1] + prop.table(ct)[1,2]")
+      percent_false_negatives = (R.pull "prop.table(ct)[2,1]") / (R.pull "prop.table(ct)[2,1] + prop.table(ct)[2,2]")
+    
+      correlation_coefficient = R.pull "sqrt(chisq.test(ct)$statistic/sum(ct))"
+    
+      @accuracy = {
+        :percent_correct         => percent_correct,
+        :percent_false_negatives => percent_false_negatives,
+        :percent_false_positives => percent_false_positives,
+        :correlation_coefficient => correlation_coefficient
+      }
+    end
   end
 end
+
+include Harlequin
