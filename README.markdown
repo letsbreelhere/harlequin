@@ -28,5 +28,5 @@ Multiple predictions can be computed at once in the same way as adding multiple 
 In order to assess the effectiveness of adding a variable, the DiscriminantAnalysis class includes access to the two-sample t-test for difference in means between classes. This currently works for binary classification only.
 
 ```ruby
-analysis.t_test(:weight) #=> { :t_statistic=>12.0748, :degrees_of_freedom=>1.471, :p_value=>0.01898}
+analysis.t_test(:weight) #=> { :t_statistic=>12.0748, :degrees_of_freedom=>1.471, :p_value=>0.01898 }
 ```
