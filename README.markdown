@@ -1,3 +1,4 @@
+# About #
 Harlequin is a gem that allows easy access to the linear and quadratic discriminant analysis functions of R. To use harlequin, initialize a DiscriminantAnalysis object with an array of variable names for analysis, and a classification variable name as a second argument, like so:
 
 ```ruby
@@ -30,3 +31,8 @@ In order to assess the effectiveness of adding a variable, the DiscriminantAnaly
 ```ruby
 analysis.t_test(:weight) # => {:t_statistic=>12.0748, :degrees_of_freedom=>1.471, :p_value=>0.01898}
 ```
+
+# Requirements #
+A Ruby script using Harlequin requires an R instance, so make sure you have a working copy of R installed on your system. The OSX binaries for R can be found [here](http://cran.r-project.org/bin/macosx/). See the documentation for Rinruby for more details.
+
+You will also need the additional R packages MASS and alr3. These can be installed with the R command line by first choosing a mirror with ```chooseCRANmirror()``` and then installing with ```install.packages(c("MASS"), c("alr3"))```.
