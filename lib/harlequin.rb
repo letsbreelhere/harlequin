@@ -46,8 +46,6 @@ module Harlequin
       R.eval "d <- data.frame(classes, confidence=predictions$posterior)"
       prediction_matrix = R.pull "as.matrix(d)"
     
-      # This requires classes to be integers 1,2,3,...
-      # TODO: implement this without requiring specific values for sample hashes
       predictions = prediction_matrix.to_a.map do |row|
         classification = row.first.to_i
         confidence = row[classification]
