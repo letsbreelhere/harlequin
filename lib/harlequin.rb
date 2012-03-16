@@ -38,14 +38,17 @@ module Harlequin
       end
     
       sample_var_declarations = (variables - [classification_variable]).map { |var| "#{var.to_s} = #{var.to_s}_sample" }.join(',')
-      R.eval "sample_points <- data.frame(#{sample_var_declarations})"
-    
-      R.eval "predictions <- predict(fit, sample_points)"
-      R.eval "classes <- as.numeric(predictions$class)"
-    
-      R.eval "d <- data.frame(classes, confidence=predictions$posterior)"
+      R.eval <<-EOF
+      sample_points <- data.frame(#{sample_var_declarations})
+      
+      predictions <- predict(fit, sample_points)
+      classes <- as.numeric(predictions$class)
+      
+      d <- data.frame(classes, confidence=predictions$posterior)
+      EOF
+      
       prediction_matrix = R.pull "as.matrix(d)"
-    
+      
       predictions = prediction_matrix.to_a.map do |row|
         classification = row.first.to_i
         confidence = row[classification]
