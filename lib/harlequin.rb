@@ -64,7 +64,7 @@ module Harlequin
       R.eval "t_test <- t.test(#{variable.to_s} ~ #{classification_variable.to_s})"
     
       t_statistic        = R.pull "t_test$statistic"
-      degrees_of_freedom = R.pull "t_test$df"
+      degrees_of_freedom = R.pull "t_test$parameter"
       p_value            = R.pull "t_test$p.value"
     
       {
