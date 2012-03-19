@@ -4,6 +4,7 @@ module Harlequin
   R.echo false
   R.eval "library(MASS)"
   R.eval "library(alr3)"
+  R.eval "library(RWeka)"
 
   class DiscriminantAnalysis
     attr_reader :training_data, :variables, :classification_variable, :accuracy, :class_hash
@@ -14,6 +15,7 @@ module Harlequin
       @classification_variable = classification_variable
       @training_data           = []
       @class_hash              = {}
+      @current_analysis_type   = nil
     end
   
     def clear_training_data
@@ -31,34 +33,54 @@ module Harlequin
       end
     end
   
-    # Returns the class determined by linear discriminant analysis for an array of sample points.
+    # Returns the classification for an array of sample points.
     def predict(*samples)
       (variables - [classification_variable]).each do |var|
         R.assign(var.to_s + "_sample", samples.map { |s| s[var] })
       end
-    
+      
       sample_var_declarations = (variables - [classification_variable]).map { |var| "#{var.to_s} = #{var.to_s}_sample" }.join(',')
-      R.eval <<-EOF
-      sample_points <- data.frame(#{sample_var_declarations})
       
-      predictions <- predict(fit, sample_points)
-      classes <- as.numeric(predictions$class)
-      
-      d <- data.frame(classes, confidence=predictions$posterior)
-      EOF
-      
-      prediction_matrix = R.pull "as.matrix(d)"
-      
-      predictions = prediction_matrix.to_a.map do |row|
-        classification = row.first.to_i
-        confidence = row[classification]
-        {
-          :class      => @class_hash.invert[classification],
-          :confidence => confidence
-        }
+      if @current_analysis_type == :k_nearest_neighbor
+        R.eval <<-EOF
+        sample_points <- data.frame(#{sample_var_declarations})
+        
+        predictions <- predict(fit, sample_points)
+        classes <- round(predictions)
+        d <- data.frame(classes, confidence=predictions)
+        EOF
+        
+        prediction_matrix = R.pull "classes"
+        predictions = prediction_matrix.map do |row|
+          classification = row.to_i
+          {
+            :class => @class_hash.invert[classification]
+          }
+        end
+        
+        predictions.count == 1 ? predictions.first : predictions
+      else
+        R.eval <<-EOF
+        sample_points <- data.frame(#{sample_var_declarations})
+        
+        predictions <- predict(fit, sample_points)
+        classes <- as.numeric(predictions$class)
+        
+        d <- data.frame(classes, confidence=predictions$posterior)
+        EOF
+        
+        prediction_matrix = R.pull "as.matrix(d)"
+        predictions = prediction_matrix.to_a.map do |row|
+          classification = row.first.to_i
+          confidence = row[classification]
+          {
+            :class      => @class_hash.invert[classification],
+            :confidence => confidence
+          }
+        end
+        
+        predictions.count == 1 ? predictions.first : predictions
       end
-    
-      predictions.count == 1 ? predictions.first : predictions
     end
   
     # Performs a test of difference of means between classes
@@ -111,8 +133,21 @@ module Harlequin
           analysis_data <- data.frame(#{@var_declarations})
           fit <- #{analysis_type}(#{classification_variable.to_s} ~ #{@non_class_variables}, data=analysis_data)
         EOF
+        
+        @current_analysis_type = analysis_type.to_sym
         compute_accuracy
       end
+    end
+    
+    def init_knn_analysis
+      init_analysis
+      R.eval <<-EOF
+        analysis_data <- data.frame(#{@var_declarations})
+        fit <- IBk(#{classification_variable.to_s} ~ ., data=analysis_data)
+      EOF
+      
+      @current_analysis_type = :k_nearest_neighbor
+      compute_accuracy
     end
   
     private

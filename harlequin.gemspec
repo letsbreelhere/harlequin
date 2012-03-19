@@ -21,5 +21,6 @@ Gem::Specification.new do |s|
   # specify any dependencies here
   
   s.add_development_dependency "rspec"
+  s.add_development_dependency "pry"
   s.add_dependency             "rinruby"
 end

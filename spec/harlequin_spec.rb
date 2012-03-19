@@ -41,6 +41,14 @@ describe Harlequin::DiscriminantAnalysis do
     end
   end
   
+  it 'predicts for k-nearest neighbor classifiers' do
+    @discriminant_analysis.init_knn_analysis
+    samples = [@male_sample, @female_sample]
+    predictions = @discriminant_analysis.predict(*samples)
+    
+    predictions.map { |row| row[:class] }.should eq [1,2]
+  end
+  
   it 'clears training data from a DiscriminantAnalysis instance' do
     @discriminant_analysis.clear_training_data
     @discriminant_analysis.training_data.should be_empty
