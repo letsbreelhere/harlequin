@@ -165,7 +165,12 @@ module Harlequin
     end
     
     def compute_accuracy
-      R.eval "ct <- table(predict(fit)$class, analysis_data$#{classification_variable.to_s})"
+      if @current_analysis_type == :k_nearest_neighbor
+        R.eval "ct <- table(predict(fit), analysis_data$#{classification_variable.to_s})"
+      else
+        R.eval "ct <- table(predict(fit)$class, analysis_data$#{classification_variable.to_s})"
+      end
+      
       percent_correct = R.pull "sum(diag(prop.table(ct)))"
       percent_false_positives = (R.pull "prop.table(ct)[1,2]") / (R.pull "prop.table(ct)[1,1] + prop.table(ct)[1,2]")
       percent_false_negatives = (R.pull "prop.table(ct)[2,1]") / (R.pull "prop.table(ct)[2,1] + prop.table(ct)[2,2]")
